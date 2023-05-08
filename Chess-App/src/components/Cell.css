@@ -1,0 +1,13 @@
+.cell {
+	height: 0;
+	width: 100%;
+	padding-bottom: 100%;
+	background-color: white;
+}
+
+.light-square {
+	background-color: #f2e3db;
+}
+.dark-square {
+	background-color: #263a29;
+}
