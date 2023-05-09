@@ -2,7 +2,7 @@ import "./Cell.css";
 import { useState } from "react";
 
 interface Props {
-	id: Strign;
+	id: String;
 }
 
 const startingPosition = [
@@ -75,6 +75,8 @@ const startingPositionMap = {
 	h7: "Black-Pawn",
 };
 
+const indexMap = ["a", "c", "e", "g"];
+
 function DisplayPieces({ id }) {
 	if (startingPosition.includes(id)) {
 		return (
@@ -87,10 +89,36 @@ function DisplayPieces({ id }) {
 		);
 	}
 }
-function Cell({ id }: Props) {
-	const indexMap = ["a", "c", "e", "g"];
 
-	const [selected, setSelected] = useState("");
+function CellDiv({ id }) {
+	const [selectedCells, setSelectedCells] = useState({ cells: [] });
+	let classname = "";
+
+	const removeItem = (arr, item) => {
+		let index = arr.indexOf(item);
+		arr.splice(index, 1);
+		return arr;
+	};
+
+	const selectSelf = (id) => {
+		setSelectedCells({
+			...selectedCells,
+			cells: selectedCells.cells.concat([id]),
+		});
+	};
+
+	const unselectSelf = (id) => {
+		setSelectedCells({
+			...selectedCells,
+			cells: removeItem(selectedCells.cells, id),
+		});
+	};
+
+	if (selectedCells.cells.includes(id)) {
+		classname = "cell border border-secondary text-center clicked";
+	} else {
+		classname = "cell border border-secondary text-center";
+	}
 
 	if (
 		(indexMap.includes(id[0]) && id[1] % 2 == 0) ||
@@ -98,12 +126,14 @@ function Cell({ id }: Props) {
 	) {
 		return (
 			<div
-				className={
-					"cell border border-secondary text-center light-square " +
-					`${selected}`
-				}
+				className={classname + " light-square"}
 				onClick={() => {
-					setSelected("clicked");
+					if (selectedCells.cells.includes(id)) {
+						unselectSelf(id);
+					} else {
+						selectSelf(id);
+					}
+					// setSelected("clicked");
 				}}
 			>
 				<DisplayPieces id={id} />
@@ -112,18 +142,22 @@ function Cell({ id }: Props) {
 	} else {
 		return (
 			<div
-				className={
-					"cell border border-danger dark-square text-center " +
-					`${selected}`
-				}
+				className={classname + " dark-square"}
 				onClick={() => {
-					setSelected("clicked");
+					if (selectedCells.cells.includes(id)) {
+						unselectSelf(id);
+					} else {
+						selectSelf(id);
+					}
 				}}
 			>
 				<DisplayPieces id={id} />
 			</div>
 		);
 	}
+}
+function Cell({ id }: Props) {
+	return <CellDiv id={id} />;
 }
 
 export default Cell;
