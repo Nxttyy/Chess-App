@@ -1,4 +1,5 @@
 import "./Board.css";
+// import Cell from "Cell.tsx";
 
 function Board({ children }) {
 	return (

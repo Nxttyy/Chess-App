@@ -1,6 +1,6 @@
 import "./App.css";
 import Board from "./components/Board.tsx";
-import Cell from "./components/Cell.tsx";
+import Cells from "./components/Cells.tsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 // import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 // import { faCoffee } from "@fortawesome/free-solid-svg-icons";
@@ -20,7 +20,7 @@ function App() {
     <div className="main-container">
       <Board>
         {cells.flat().map((cell) => {
-          return <Cell id={cell} key={cell} />;
+          return <Cells id={cell} key={cell} />;
         })}
       </Board>
     </div>
