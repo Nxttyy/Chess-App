@@ -19,10 +19,19 @@
 
 .clicked {
 	background-color: #00e3cc;
+	/*	--bs-text-opacity: 0.25;*/
 }
 
 .circle {
+	/*height: 50px;
+	width: 50px;*/
 	transform: scale(2, 2);
+	position: relative;
+	top: 50%;
+	/*	top: 100%;*/
+}
+.circle-div {
+	display: flex;
 }
 img {
 	/*	height: 100%;*/
