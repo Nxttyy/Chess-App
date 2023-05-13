@@ -1,101 +1,65 @@
 import "./Cell.css";
-import { useState, componentDidUpdate } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircle } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
+// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { faCircle } from "@fortawesome/free-solid-svg-icons";
+// import DisplayPieces from "./CellHelpers.tsx";
 
-interface Props {
-	id: String;
-}
+const positionsWithPieces = [];
+let selectedPiecePos = "";
+const selectedCells = [];
 
-interface Props2 {
-	classname: String;
-	onClick: () => Null;
-	id: String;
-	isSelected: Bool;
-}
+function MovePieces(
+	initialPos,
+	finalPos,
+	startingPositionMap,
+	setPiecePosition
+) {
+	let piece, index;
+	let tempArray = [];
 
-const startingPosition = [
-	"a1",
-	"b1",
-	"c1",
-	"d1",
-	"e1",
-	"f1",
-	"g1",
-	"h1",
-	"a8",
-	"b8",
-	"c8",
-	"d8",
-	"e8",
-	"f8",
-	"g8",
-	"h8",
-	"a2",
-	"b2",
-	"c2",
-	"d2",
-	"e2",
-	"f2",
-	"g2",
-	"h2",
-	"a7",
-	"b7",
-	"c7",
-	"d7",
-	"e7",
-	"f7",
-	"g7",
-	"h7",
-];
-
-const indexMap = ["a", "c", "e", "g"];
-
-function MovePieces(initialPos, finalPos, setRefresh) {
-	console.log(initialPos, finalPos);
-	let piece;
-
-	let index = startingPosition.indexOf(initialPos);
-	startingPosition.splice(index, 1);
-
-	startingPositionMap.forEach((pos) => {
-		if (pos[0] == initialPos) {
-			index = startingPositionMap.indexOf(pos);
-			piece = pos[1];
+	startingPositionMap.forEach((_map) => {
+		if (_map[0] == initialPos) {
+			index = startingPositionMap.indexOf(_map);
+			piece = _map[1];
 		}
 	});
-	// index = startingPositionMap.indexOf(initialPos);
-	startingPositionMap.splice(index, 1);
 
-	startingPosition.push(finalPos);
-	startingPositionMap.push([finalPos, piece]);
-	// setRefresh("a");
+	tempArray = startingPositionMap;
+	tempArray.splice(index, 1);
+	tempArray.push([finalPos, piece]);
+
+	setPiecePosition({
+		...startingPositionMap,
+		piecePositionMap: tempArray,
+	});
+
+	selectedPiecePos = "";
+
 	console.log("moved " + piece + " from " + initialPos + " to " + finalPos);
 }
 
 function DisplayPieces({ id, startingPositionMap }) {
-	let value = "";
-	if (startingPosition.includes(id)) {
-		startingPositionMap.forEach((pos) => {
-			if (pos[0] == id) {
-				value = pos[1];
+	let matches = false;
+	let piece = "";
+
+	startingPositionMap.forEach((pos) => {
+		if (pos[0] == id) {
+			matches = true;
+			piece = pos[1];
+
+			if (!positionsWithPieces.includes(id)) {
+				positionsWithPieces.push(id);
 			}
-		});
-		return <img src={"../assets/images/" + value + ".png"} alt="" />;
-	} else {
-		return <></>;
+		}
+	});
+	if (matches) {
+		return <img src={"../assets/images/" + piece + ".png"} alt="" />;
 	}
 }
 
-function Cell({
-	classname,
-	onClick,
-	id,
-	isSelected,
-	startingPositionMap,
-}: Props2) {
-	console.log(classname);
-	console.log(id);
+function Cell(classname, onClick, id, isSelected, startingPositionMap) {
+	const indexMap = ["a", "c", "e", "g"];
+
 	if (
 		(indexMap.includes(id[0]) && id[1] % 2 == 0) ||
 		(!indexMap.includes(id[0]) && id[1] % 2 != 0)
@@ -104,28 +68,20 @@ function Cell({
 	} else {
 		classname += " dark-square";
 	}
+
 	return (
 		<div className={classname} onClick={onClick}>
 			<DisplayPieces id={id} startingPositionMap={startingPositionMap} />
-			{/*{clicked({ isSelected })}*/}
-
-			{/*<i class="fa-solid fa-circle circle"></i>{" "}*/}
 		</div>
 	);
 }
 
-const selectedCells = [];
-let selectedPiecePos = "";
-export default function CellDiv({ id, startingPositionMap }) {
-	//refreshs the components after selectedCells changes
-	// const [refresh, setRefresh] = useState("");
-	console.log(id);
-	console.log("A");
+function CellDiv({ id, startingPositionMap, setPiecePosition }) {
 	const [isSelected, setIsSelected] = useState(false);
 	let classname = "";
 
 	selectedCells.push([id, setIsSelected]);
-	console.log(selectedCells);
+	// console.log(selectedCells);
 	const removeItem = (arr, item) => {
 		let index = arr.indexOf(item);
 		arr.splice(index, 1);
@@ -135,12 +91,34 @@ export default function CellDiv({ id, startingPositionMap }) {
 	const helper = ["a", "b", "c", "d", "e", "f", "g", "h"];
 
 	const handleSelection = (id) => {
-		if (startingPosition.includes(id)) {
-			selectedPiecePos = id;
-		} else if (selectedPiecePos) {
-			// console.log(selectedPiecePos, id);
-			MovePieces(selectedPiecePos, id, setRefresh);
+		if (positionsWithPieces.includes(id)) {
+			//clicked pos has a piece
+			if (selectedPiecePos) {
+				MovePieces(
+					selectedPiecePos,
+					id,
+					startingPositionMap,
+					setPiecePosition
+				);
+			} else {
+				selectedPiecePos = id;
+			}
+			// selectedPiecePos = id;
+		} else {
+			//no piece on selected square
+			if (selectedPiecePos) {
+				MovePieces(
+					selectedPiecePos,
+					id,
+					startingPositionMap,
+					setPiecePosition
+				);
+			} else {
+				selectedPiecePos = id;
+			}
 		}
+
+		//highlights the movable squares
 		for (let i = 1; i < 9; i++) {
 			selectedCells.forEach((item) => {
 				if (
@@ -157,7 +135,6 @@ export default function CellDiv({ id, startingPositionMap }) {
 				}
 			});
 		}
-		// setIsSelected(true);
 	};
 
 	const _onClick = () => {
@@ -170,27 +147,8 @@ export default function CellDiv({ id, startingPositionMap }) {
 	} else {
 		classname = "cell border border-secondary text-center";
 	}
-	// console.log(
-	// 	<Cell
-	// 		classname={classname}
-	// 		onClick={_onClick}
-	// 		id={id}
-	// 		isSelected={isSelected}
-	// 	/>
-	// );
-	return (
-		<Cell
-			classname={classname}
-			onClick={_onClick}
-			id={id}
-			isSelected={isSelected}
-			startingPositionMap={startingPositionMap}
-		/>
-	);
+
+	return Cell(classname, _onClick, id, isSelected, startingPositionMap);
 }
 
-function Cells({ id }: Props) {
-	return <CellDiv id={id} />;
-}
-
-// export default Cells;
+export default CellDiv;
