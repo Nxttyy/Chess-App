@@ -58,6 +58,7 @@ function Board() {
 		}
 	}
 
+	// cells.reverse();
 	console.log(piecePosition.piecePositionMap);
 	return (
 		<div className=" container position-relative top-50 start-50 translate-middle board border-dark shadow-lg">

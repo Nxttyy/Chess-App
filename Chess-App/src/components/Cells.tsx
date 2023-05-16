@@ -7,6 +7,8 @@ import { useState } from "react";
 const positionsWithPieces = [];
 let selectedPiecePos = "";
 const selectedCells = [];
+const movableCells = [];
+const capturedPieces = [];
 
 function MovePieces(
 	initialPos,
@@ -14,7 +16,8 @@ function MovePieces(
 	startingPositionMap,
 	setPiecePosition
 ) {
-	let piece, index;
+	let piece = "";
+	let index;
 	let tempArray = [];
 
 	startingPositionMap.forEach((_map) => {
@@ -24,18 +27,48 @@ function MovePieces(
 		}
 	});
 
-	tempArray = startingPositionMap;
-	tempArray.splice(index, 1);
-	tempArray.push([finalPos, piece]);
+	if (movableCells.includes(finalPos)) {
+		tempArray = startingPositionMap;
+		tempArray.splice(index, 1);
 
-	setPiecePosition({
-		...startingPositionMap,
-		piecePositionMap: tempArray,
-	});
+		//cature logic and handling
+		if (positionsWithPieces.includes(finalPos)) {
+			let capturedIndex, capturedPiece;
 
-	selectedPiecePos = "";
+			startingPositionMap.forEach((_map) => {
+				if (_map[0] == finalPos) {
+					capturedIndex = startingPositionMap.indexOf(_map);
+					capturedPiece = _map[1];
+				}
+			});
 
-	console.log("moved " + piece + " from " + initialPos + " to " + finalPos);
+			tempArray.splice(capturedIndex, 1);
+
+			capturedPieces.push([capturedIndex, capturedPiece]);
+			console.log(
+				piece + " captured " + capturedPiece + " at " + finalPos
+			);
+		}
+
+		tempArray.push([finalPos, piece]);
+
+		setPiecePosition({
+			...startingPositionMap,
+			piecePositionMap: tempArray,
+		});
+
+		selectedPiecePos = "";
+		selectedCells.forEach((cell) => {
+			cell[1](false);
+		});
+		movableCells.splice(movableCells.indexOf(finalPos), 1);
+		positionsWithPieces.splice(positionsWithPieces.indexOf(initialPos), 1);
+
+		positionsWithPieces.push(finalPos);
+		console.log(
+			"moved " + piece + " from " + initialPos + " to " + finalPos
+		);
+	}
 }
 
 function DisplayPieces({ id, startingPositionMap }) {
@@ -76,6 +109,29 @@ function Cell(classname, onClick, id, isSelected, startingPositionMap) {
 	);
 }
 
+function selectMovableSquares(id) {
+	const helper = ["a", "b", "c", "d", "e", "f", "g", "h"];
+
+	for (let item of selectedCells) {
+		//same file
+		if (
+			item[0][0] == id[0] ||
+			item[0][1] == id[1] ||
+			helper.indexOf(item[0][0]) - Number(id[1]) ==
+				helper.indexOf(id[0]) - Number(item[0][1]) ||
+			helper.indexOf(item[0][0]) - helper.indexOf(id[0]) ==
+				Number(item[0][1]) - Number(id[1])
+		) {
+			if (!movableCells.includes(item[0])) {
+				movableCells.push(item[0]);
+			}
+			item[1](true);
+		} else {
+			item[1](false);
+		}
+	}
+}
+
 function CellDiv({ id, startingPositionMap, setPiecePosition }) {
 	const [isSelected, setIsSelected] = useState(false);
 	let classname = "";
@@ -88,8 +144,6 @@ function CellDiv({ id, startingPositionMap, setPiecePosition }) {
 		return arr;
 	};
 
-	const helper = ["a", "b", "c", "d", "e", "f", "g", "h"];
-
 	const handleSelection = (id) => {
 		if (positionsWithPieces.includes(id)) {
 			//clicked pos has a piece
@@ -101,6 +155,8 @@ function CellDiv({ id, startingPositionMap, setPiecePosition }) {
 					setPiecePosition
 				);
 			} else {
+				selectMovableSquares(id);
+
 				selectedPiecePos = id;
 			}
 			// selectedPiecePos = id;
@@ -113,28 +169,10 @@ function CellDiv({ id, startingPositionMap, setPiecePosition }) {
 					startingPositionMap,
 					setPiecePosition
 				);
-			} else {
-				selectedPiecePos = id;
 			}
 		}
 
 		//highlights the movable squares
-		for (let i = 1; i < 9; i++) {
-			selectedCells.forEach((item) => {
-				if (
-					item[0][0] == id[0] ||
-					item[0][1] == id[1] ||
-					helper.indexOf(item[0][0]) - Number(id[1]) ==
-						helper.indexOf(id[0]) - Number(item[0][1]) ||
-					helper.indexOf(item[0][0]) - helper.indexOf(id[0]) ==
-						Number(item[0][1]) - Number(id[1])
-				) {
-					item[1](true);
-				} else {
-					item[1](false);
-				}
-			});
-		}
 	};
 
 	const _onClick = () => {
