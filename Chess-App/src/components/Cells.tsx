@@ -155,24 +155,90 @@ function Cell(classname, onClick, id, isSelected, startingPositionMap) {
 function selectMovableSquares(id) {
 	movableCells = [];
 	const helper = ["a", "b", "c", "d", "e", "f", "g", "h"];
+	let positive = false;
+	let negative = false;
+	const dist = [];
+	let pL = [];
 
 	for (let item of selectedCells) {
 		if (
-			item[0][0] == id[0] ||
-			item[0][1] == id[1] ||
-			helper.indexOf(item[0][0]) - Number(id[1]) ==
-				helper.indexOf(id[0]) - Number(item[0][1]) ||
-			helper.indexOf(item[0][0]) - helper.indexOf(id[0]) ==
-				Number(item[0][1]) - Number(id[1])
+			item[0][0] == id[0] || 
 			// movableCells.includes(item[0]))
 		) {
 			movableCells.push(item[0]);
+			pL.push(item[0]);
 			item[1](true);
 		} else {
 			item[1](false);
 		}
 	}
-	// console.log(movableCells);
+
+	// //remove duplicates from pL
+	// pL.forEach((p) => {
+	// 	pL.forEach((p2) => {
+	// 		if (p == p2) {
+	// 			// console.log();
+	// 			pL.splice(pL.indexOf(p2), 1);
+	// 		}
+	// 	});
+	// });
+	// console.log(pL);
+	// //unselect blocked(invisible) pieces
+	// const unselectHiddenPieces = (positionList) => {
+	// 	// console.log(positionList);
+	// 	const dist2 = [];
+
+	// 	positionList.forEach((pos) => {
+	// 		if (positionsWithPieces.includes(pos)) {
+	// 			// console.log("2");
+	// 			dist.push(Number(pos[1] - id[1]));
+	// 			dist2.push([Number(pos[1] - id[1]), pos]);
+	// 		}
+	// 	});
+
+	// 	dist.sort();
+	// 	console.log(dist);
+	// 	for (let d of dist) {
+	// 		console.log(d);
+	// 		if (!negative && d < 0) {
+	// 			dist.splice(dist.indexOf(d), 1);
+	// 			// console.log(d);
+	// 			negative = true;
+	// 		} else if (!positive && d > 0) {
+	// 			dist.splice(dist.indexOf(d), 1);
+	// 			// console.log(d);
+
+	// 			positive = true;
+	// 		} else if (d == 0) {
+	// 			dist.splice(dist.indexOf(d), 1);
+	// 			// console.log(d);
+	// 		}
+	// 	}
+
+	// 	dist.forEach((d) => {
+	// 		// console.log(d);
+	// 	});
+	// 	console.log(dist);
+
+	// 	// console.log(dist);
+	// 	// console.log(dist2);
+	// 	dist2.forEach((d2) => {
+	// 		// console.log(d2);
+	// 		if (dist.includes(d2[0])) {
+	// 			// console.log("3");
+	// 			// console.log(d2[1]);
+	// 			selectedCells.forEach((c) => {
+	// 				if (c[0] == d2[1]) {
+	// 					c[1](false);
+	// 				}
+	// 			});
+	// 			movableCells.splice(movableCells.indexOf(d2[1]), 1);
+	// 		}
+	// 	});
+	// };
+
+	// unselectHiddenPieces(pL);
+	// pL = [];
 }
 
 function CellDiv({ id, startingPositionMap, setPiecePosition }) {
